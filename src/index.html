@@ -4,9 +4,10 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
-    <link rel="stylesheet" href="css/layout.css" type="text/css">
-    <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
-	<link rel="stylesheet" href="css/slider.css" type="text/css">
+    <link rel="stylesheet" href="styles/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="styles/bootstrap-responsive.min.css" type="text/css">
+	<link rel="stylesheet" href="styles/slider.css" type="text/css">
+    <link rel="stylesheet" href="styles/layout.css" type="text/css">
 	
     <title>Earthquakes using Canadas Open Data set</title>
 	
@@ -17,7 +18,7 @@
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
-          <a class="brand" href="./">Earthquakes in Canada</a>
+            <a class="brand" href="./">365 days of Earthquakes in Canada: <span id="labelEarliest"></span> - <span id="labelLatest"></a>
         </div>
       </div>
     </div>
@@ -34,32 +35,28 @@
       <div class="row-fluid">
 
         <div class="span12">
-          <h4 id="title">Earthquakes in Canada</h4>
-          <p id="shortdesc">as reported through data.gc.ca</p>
-		  
-		  <div class = "slider-holder" style="margin:0 auto; text-align:center;"/>
-			<span id="labelEarliest">May 2014</span>
-			<input id="time" style="width:80%" type="text"/>
-			<span id="labelLatest">May 2014</span>
+            <h4> Instructions: move the slider to review the year in quakes</h4>
+		  <div class = "slider-holder" style="margin:0 auto; text-align:center; visibility:hidden"/>
+			<input id="time" type="text"/>
 		  </div>
-          
 
-		  <div id="docs">
-              No docs now.            
+		  <div id="docs"><h4>About</h4>
+            <p>
+              Using the open data sets from <a href = "http://www.earthquakescanada.nrcan.gc.ca/api/earthquakes/latest/365d.json" target="_blank">earthquakescanada.nrcan.gc.ca</a> and <a href="openlayers.org">Mapped using OpenLayers</a>, to show a timeline of the last 365 days of earthquakes in Canada
+            </p>
+            
           </div>
-          <div id="tags">openlayers 3, data.gc.ca</div>
+          <div id="tags">Tags: OpenLayers, NRCan, earthquakes</div>
         </div>
       </div>
-
     </div>
-	
-	
 
-	<script src="http://openlayers.org/en/v3.0.0/build/ol-debug.js" type="text/javascript"></script>
-    <script src="https://code.jquery.com/jquery-2.1.1.min.js" type="text/javascript"></script>
+	<!--<script src="http://openlayers.org/en/v3.0.0/build/ol-debug.js" type="text/javascript"></script>-->
+    <script src="scripts/ol-debug.js" type="text/javascript"></script>
+    <script src="scripts/jquery.js" type="text/javascript"></script>
 	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
-	<script src="script/bootstrap-slider.js"></script>
-    <script src="script/canada-earthquakes.js" type="text/javascript"></script>
+	<script src="scripts/bootstrap-slider.js"></script>
+    <script src="scripts/canada-earthquakes.js" type="text/javascript"></script>
     
 
   </body>

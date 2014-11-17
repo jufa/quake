@@ -1,0 +1,15 @@
+{
+  "name": "quake",
+  "version": "0.1.0",
+  "main": "path/to/main.css",
+  "ignore": [
+    ".jshintrc",
+    "**/*.txt"
+  ],
+  "dependencies": {
+    "datejs": "~1.0.0-rc1",
+    "jquery": "~2.1.1",
+    "openlayers": "*"
+  },
+  "devDependencies": {}
+}
