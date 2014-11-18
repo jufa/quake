@@ -10,6 +10,15 @@ html,body {
     width:100%;
 }
 
+a, a:link, a:visited {
+    color: #def;
+}
+
+a:active, a:hover {
+    color: #ccc;
+}
+
+
 /* bootstrap overrides */
 .container-fluid {
 
@@ -58,7 +67,6 @@ html,body {
     width:80%;
     margin:0 auto;
     text-align:center;
-    visibility:hidden;
     background-color:#555;
     bac
     /* corner radius fills TODO: less: */
@@ -76,6 +84,12 @@ html,body {
 .slider-holder p.instructions {
     font-size: 16px;
     font-weight:bold;
+}
+.scrubber {
+    width:80%;
+    height:30px;
+    padding:0;
+    margin:0 auto;
 }
 #magcanvas {
     width:80%;
