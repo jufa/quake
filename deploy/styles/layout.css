@@ -6,7 +6,18 @@ html,body {
     color:#fff;
     margin:0;
     padding:0;
+    height:100%;
+    width:100%;
 }
+
+a, a:link, a:visited {
+    color: #def;
+}
+
+a:active, a:hover {
+    color: #ccc;
+}
+
 
 /* bootstrap overrides */
 .container-fluid {
@@ -16,7 +27,8 @@ html,body {
 .controls {
     padding:20px;
     position: relative;
-    top: -140px;
+    top: -190px;
+    z-index:2000;
     
 }
 #header {
@@ -55,7 +67,6 @@ html,body {
     width:80%;
     margin:0 auto;
     text-align:center;
-    visibility:hidden;
     background-color:#555;
     bac
     /* corner radius fills TODO: less: */
@@ -74,6 +85,12 @@ html,body {
     font-size: 16px;
     font-weight:bold;
 }
+.scrubber {
+    width:80%;
+    height:30px;
+    padding:0;
+    margin:0 auto;
+}
 #magcanvas {
     width:80%;
     height:60px;
@@ -86,7 +103,7 @@ html,body {
     height: 200px;
     padding:0;
     margin: auto;
-    z-index: 9999;
+    z-index: 3000;
 }
 #loading img{
     width: 100%;

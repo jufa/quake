@@ -6,6 +6,7 @@ var quake = (function($){
     var TIMESTAMP_MIN = -8640000000000000;
     var TIMESTAMP_MAX = 8640000000000000;
     var timestampSpan = 1*48*60*60*1000; //0.5 days in msec 
+    var scrubber;//scrubber control ref
     var vectorSource = new ol.source.Vector();
     var quakeOpacity = 0.9;//opacity of quake indicator circles
     var colours = ["#66CCFF", "#66FFFF", "#66FFCC", "#CCFF66", "#FFCC00", "#FF6600"]; //to map to magnitudes 1 - 5.9 and higher see: http://coolmaxhot.com/graphics/hex-color-palette.htm
@@ -253,6 +254,30 @@ var quake = (function($){
         
     }
     
+    
+    /**
+     * @brief: initialize the scrubber control
+     * @reference: https://github.com/desmosinc/scrubber
+     */
+    var setupScrubber = function () {
+        scrubber = new ScrubberView();
+        
+        $('.scrubber-control').append(scrubber.elt);
+        scrubber.min(Math.floor(dateEarliest));
+        scrubber.max(Math.floor(dateLatest));
+        scrubber.step(1000);
+        
+        //$('.scrubber-control').css({'visibility':'visible'});
+        
+        //interaction listener:
+        scrubber.onValueChanged = function (value) {
+            handleTimeUpdate(scrubber.value());
+        };
+        
+    }
+    
+    
+    
     /**
      * @brief: init header text with start and end dates of quake data
      */
@@ -277,10 +302,11 @@ var quake = (function($){
     var initInterface = function() {
         hideLoader();
         setupMap();
-        setupSlider();
+        setupScrubber();//setupSlider();
         setupHeader();
         var startTime = Math.floor((dateEarliest.getTime() + dateLatest.getTime())*0.5);
-        $('#time').slider('setValue',startTime);
+        //$('#time').slider('setValue',startTime);
+        scrubber.value(startTime);
         handleTimeUpdate (startTime);
         
     };
