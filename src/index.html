@@ -5,8 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta description = "The last 365 Days of Earthquakes Using Canada's Open Data Set"
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
-    <link rel="stylesheet" href="styles/bootstrap.min.css" type="text/css">
-	<link rel="stylesheet" href="styles/slider.css" type="text/css">
+    <link rel="stylesheet" href="styles/scrubber.css" type="text/css">
     <link rel="stylesheet" href="styles/layout.css" type="text/css">
 	
     <title>The last 365 Days of Earthquakes Using Canada's Open Data Set</title>
@@ -28,7 +27,8 @@
         
     <div class="controls">
         <div class = "slider-holder">
-            <input id="time" type="text"/>
+            <div class="scrubber-control"></div>
+           
             <p class="instructions">Move the slider to review the year in Earthquakes. Touch a quake area to get the details.<br/>Can you see where the plates meet in Canada?</p>
              <p class="credits">Find out more about Canada's Seiesmic Situation at <a href="http://www.earthquakescanada.nrcan.gc.ca/zones/westcan-eng.php">Natural Resources Canada</a> | Open data sets from <a href = "http://www.earthquakescanada.nrcan.gc.ca/api/earthquakes/" target="_blank">earthquakescanada.nrcan.gc.ca</a> | Mapped using <a href="http://openlayers.org">OpenLayers 3</a> | Non-commercial demo by <a hred = "ca.linkedin.com/in/jeremykuzub/"Jeremy Kuzub</a> at <a hred = "http://jufa.ca">Jufa Intermedia.</a> | Code at <a href = "https://github.com/jufa/quake">Github</a></p>
             
@@ -37,11 +37,9 @@
         
     
       
-	<!--<script src="http://openlayers.org/en/v3.0.0/build/ol-debug.js" type="text/javascript"></script>-->
     <script src="scripts/ol-debug.js" type="text/javascript"></script>
     <script src="scripts/jquery.js" type="text/javascript"></script>
-	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
-	<script src="scripts/bootstrap-slider.js"></script>
+    <script src="scripts/scrubber.js"></script>
     <script src="scripts/canada-earthquakes.js" type="text/javascript"></script>
     
 
