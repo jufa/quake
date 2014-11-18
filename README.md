@@ -5,7 +5,7 @@ Quakes in Canada
 Displays Earthquakes in Canada over the past 365 days using OpenLayers 3
 
 ##Demo
-[Try it out here](http://jufaintermedia.com/demos/quake)
+[Try it out here](http://goo.gl/QYxVvc)
 
 ##Data sources
 Quake data is part of the Canadian Ferderal Government data.gc.ca.
