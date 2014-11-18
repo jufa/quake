@@ -66,6 +66,8 @@
 				this.tooltip.addClass('top')[0].style.top = -this.tooltip.outerHeight() - 14 + 'px';
 				break;
 		}
+        
+        console.log('slider: moving to width: '+this.element.outerWidth());
 
 		this.min = this.element.data('slider-min')||options.min;
 		this.max = this.element.data('slider-max')||options.max;
