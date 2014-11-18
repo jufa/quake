@@ -1,31 +1,114 @@
 /* FONTS */
-@import url(http://fonts.googleapis.com/css?family=Quattrocento+Sans:400,400italic,700);
+@import url(http://fonts.googleapis.com/css?family=Roboto:400,700);
 
-body {
-    background-color: #666;
+html,body {
+    background-color: #fff;
     color:#fff;
+    margin:0;
+    padding:0;
 }
+
+/* bootstrap overrides */
+.container-fluid {
+
+}
+
+.controls {
+    padding:20px;
+    position: relative;
+    top: -140px;
+    
+}
+
+#header {
+    position:absolute;
+    background-color:#444;
+    opacity: 0.7;
+    color: #fff;
+    z-index: 1000;
+    margin: 20px, 0, 0, 20px;
+    padding: 10px; 
+}
+#header h1 {
+    font-size:28px;
+    margin: 0;
+    padding: 0;
+    font-weight:normal;
+}
+#header p {
+    font-size:13px;
+    margin: 0;
+    padding: 0;
+    text-align:right;
+}
+
+
 
 .map {
-    height: 400px;
+    height: 100%;
     width: 100%;
+    padding: 0;
+    margin: 0;
 }
 
-.ol-attribution {
-
+.map .ol-overlaycontainer-stopevent {
+    display:none; !important
 }
 
-#tags {
-
+/*slider control */
+.slider-holder {
+    padding:10px 20px 10px 20px;
+    width:80%;
+    margin:0 auto;
+    text-align:center;
+    visibility:hidden;
+    background-color:#555;
+    bac
+    /* corner radius fills TODO: less: */
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    border-radius: 20px;
 }
+
+.slider-holder p.credits {
+    padding:0;
+    margin:0;
+    text-align: center;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+.slider-holder p.instructions {
+    font-size: 16px;
+    font-weight:bold;
+}
+
+
+#magcanvas {
+    width:80%;
+    height:60px;
+}
+
+#time {
+    width:80%;
+}
+
+#loading {
+    width: 200px;
+    height: 200px;
+    padding:0;
+    margin: auto;
+    z-index: 9999;
+}
+
+#loading img{
+    width: 100%;
+    height: 100%;
+}
+
+
 
 body, h1, h2, h3, h4, p, li, td, th {
-    font-family: Quattrocento Sans;
+    font-family: Roboto;
 }
 
-.navbar-inverse .navbar-inner {
-
-}
-
-.navbar-inverse .brand {
-}
