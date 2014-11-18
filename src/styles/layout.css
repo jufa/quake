@@ -6,6 +6,8 @@ html,body {
     color:#fff;
     margin:0;
     padding:0;
+    height:100%;
+    width:100%;
 }
 
 /* bootstrap overrides */
@@ -17,6 +19,7 @@ html,body {
     padding:20px;
     position: relative;
     top: -190px;
+    z-index:2000;
     
 }
 #header {
@@ -86,7 +89,7 @@ html,body {
     height: 200px;
     padding:0;
     margin: auto;
-    z-index: 9999;
+    z-index: 3000;
 }
 #loading img{
     width: 100%;
