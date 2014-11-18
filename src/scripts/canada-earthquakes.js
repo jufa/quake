@@ -66,7 +66,7 @@ var quake = (function($){
                         //add some userdata
                         feature.quakedata = {};
                         feature.quakedata.magnitude = val.magnitude; //in the MN mag scale
-                        feature.quakedata.description = val.location.en; //description of location
+                        if(val.location) feature.quakedata.description = val.location.en || ''; //description of location
                         feature.quakedata.depth = val.depth; //in km
                         
                         features.push(feature);
@@ -319,8 +319,7 @@ var quake = (function($){
      * @brief: document resize handler
      */
     $(window).resize( function() {
-        //most things play nicely already, but not the bootstrap slider, so let's reinit that:
-         location.reload(); //because this is a tech demo, for now we will reload.TODO: fix bootsrap slider
+ 
     });
 
     
