@@ -239,7 +239,7 @@ var quake = (function($){
         $('#time').slider({
             min: Math.floor(dateEarliest),
             max: Math.floor(dateLatest),
-            step:1,
+            step:1000,
             value: Math.floor(dateEarliest)
         });
         
@@ -279,6 +279,10 @@ var quake = (function($){
         setupMap();
         setupSlider();
         setupHeader();
+        var startTime = Math.floor((dateEarliest.getTime() + dateLatest.getTime())*0.5);
+        $('#time').slider('setValue',startTime);
+        handleTimeUpdate (startTime);
+        
     };
 
     var handleTimeUpdate  = function (time) {

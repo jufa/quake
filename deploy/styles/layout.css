@@ -19,7 +19,6 @@ html,body {
     top: -140px;
     
 }
-
 #header {
     position:absolute;
     background-color:#444;
@@ -41,20 +40,15 @@ html,body {
     padding: 0;
     text-align:right;
 }
-
-
-
 .map {
     height: 100%;
     width: 100%;
     padding: 0;
     margin: 0;
 }
-
 .map .ol-overlaycontainer-stopevent {
     display:none; !important
 }
-
 /*slider control */
 .slider-holder {
     padding:10px 20px 10px 20px;
@@ -69,7 +63,6 @@ html,body {
     -moz-border-radius: 20px;
     border-radius: 20px;
 }
-
 .slider-holder p.credits {
     padding:0;
     margin:0;
@@ -77,22 +70,17 @@ html,body {
     font-size: 12px;
     font-weight: normal;
 }
-
 .slider-holder p.instructions {
     font-size: 16px;
     font-weight:bold;
 }
-
-
 #magcanvas {
     width:80%;
     height:60px;
 }
-
 #time {
     width:80%;
 }
-
 #loading {
     width: 200px;
     height: 200px;
@@ -100,14 +88,10 @@ html,body {
     margin: auto;
     z-index: 9999;
 }
-
 #loading img{
     width: 100%;
     height: 100%;
 }
-
-
-
 body, h1, h2, h3, h4, p, li, td, th {
     font-family: Roboto;
 }
