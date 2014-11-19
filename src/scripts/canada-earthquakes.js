@@ -62,15 +62,17 @@ var quake = (function($){
                 if (val.timestamp && val.magnitude) {
                     quakeTimestamp = Number(val.timestamp); 
                     //check date range
-                    if (quakeTimestamp > startTimestamp - marginTime && quakeTimestamp < endTimestamp + marginTime ) {
+                    if (quakeTimestamp > startTimestamp - marginTime * 0 && quakeTimestamp < endTimestamp + marginTime ) {
                         count++;
                         
                         //determn facdeout opacity if in 'marginal' bounds of time range (i.e. gentle fade)
-                        var err = 0.0;
+                        var err = 1.0;
                         var opacity = quakeOpacity;
+                        /* quakes don't fade in, but if they did, we would include this:
                         if(startTimestamp > quakeTimestamp ) {
                             err = (startTimestamp - quakeTimestamp) / marginTime;
                         }
+                        */
                         if(endTimestamp < quakeTimestamp ) {
                             err = (quakeTimestamp - endTimestamp) / marginTime;
                         }
