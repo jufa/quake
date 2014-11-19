@@ -5,7 +5,7 @@ var quake = (function($){
     var dateEarliest,dateLatest; //Date Object 
     var TIMESTAMP_MIN = -8640000000000000;
     var TIMESTAMP_MAX = 8640000000000000;
-    var timestampSpan = 1*48*60*60*1000; //0.5 days in msec 
+    var timestampSpan = 1*10*24*60*60*1000; //2 days in msec 
     var scrubber;//scrubber control ref
     var vectorSource = new ol.source.Vector();
     var mapInteractions; //object containing the ol map interaction objects. i.e. what happens visually to feature styles when a user interacts with a feature.
@@ -47,7 +47,7 @@ var quake = (function($){
      * @returns none;       updates vectorSource, dateEarliest, dateLatest app-level variables
      *
      **/
-    function selectDataRange(startTimestamp, endTimestamp) {
+    function selectDataRange(startTimestamp, endTimestamp, marginTime) {
         var first = Number.MAX_VALUE;
         var last = 0.0;
         if (isNaN(startTimestamp)) startTimestamp = TIMESTAMP_MIN;
@@ -62,12 +62,22 @@ var quake = (function($){
                 if (val.timestamp && val.magnitude) {
                     quakeTimestamp = Number(val.timestamp); 
                     //check date range
-                    if (quakeTimestamp > startTimestamp && quakeTimestamp < endTimestamp ) {
+                    if (quakeTimestamp > startTimestamp - marginTime && quakeTimestamp < endTimestamp + marginTime ) {
                         count++;
                         
+                        //determn facdeout opacity if in 'marginal' bounds of time range (i.e. gentle fade)
+                        var err = 0.0;
+                        var opacity = quakeOpacity;
+                        if(startTimestamp > quakeTimestamp ) {
+                            err = (startTimestamp - quakeTimestamp) / marginTime;
+                        }
+                        if(endTimestamp < quakeTimestamp ) {
+                            err = (quakeTimestamp - endTimestamp) / marginTime;
+                        }
+                        opacity = opacity * err;
                         lat = val.geoJSON.coordinates[0];
                         lon = val.geoJSON.coordinates[1];
-                        var feature = drawQuakeFeature(lon, lat, val.magnitude);
+                        var feature = drawQuakeFeature(lon, lat, val.magnitude, opacity);
                         //add some userdata
                         feature.quakedata = {};
                         feature.quakedata.magnitude = val.magnitude; //in the MN mag scale
@@ -144,10 +154,10 @@ var quake = (function($){
      * @return OL feature object
      *
      */
-    function drawQuakeFeature(lon, lat, mag) {
+    function drawQuakeFeature(lon, lat, mag, opacity) {
         "use strict";
         var colour = magColour(mag);
-        var rgba = hexToRgba(colour, quakeOpacity);
+        var rgba = hexToRgba(colour, opacity);
         var multiplier = 50000; //radius 1 = 1 metre
         var center = ol.proj.transform([lon, lat], 'EPSG:4326','EPSG:3857');
         var style = new ol.style.Style({
@@ -227,7 +237,7 @@ var quake = (function($){
      */
     var handleTimeUpdate  = function (time) {
         hideQuakeInfo(); //invalidated anyways
-        selectDataRange(time-timestampSpan, time+timestampSpan);
+        selectDataRange(time, time, timestampSpan);
     };
 
     
@@ -267,7 +277,7 @@ var quake = (function($){
     }
 
     var playbackAnimationCallback = function() {
-        //selectDataRange(playheadTimestamp - timestampSpan, playheadTimestamp + timestampSpan);
+        //selectDataRange(playheadTimestamp, playheadTimestamp, timestampSpan);
         playheadTimestamp += playheadStep;
         scrubber.value(playheadTimestamp)
         if(playheadTimestamp > playbackEndTimestamp) playbackStop();
