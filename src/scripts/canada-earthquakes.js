@@ -10,6 +10,9 @@ var quake = (function($){
     var vectorSource = new ol.source.Vector();
     var quakeOpacity = 0.9;//opacity of quake indicator circles
     var colours = ["#66CCFF", "#66FFFF", "#66FFCC", "#CCFF66", "#FFCC00", "#FF6600"]; //to map to magnitudes 1 - 5.9 and higher see: http://coolmaxhot.com/graphics/hex-color-palette.htm
+    var playbackIntervalTimer; //creference to timer used in doing animated callback
+    var playheadDate; //the current playback date;
+    var playheadStep; //timestep in msec for playhead to advance in an nimation frame;
     var vector,raster; //refs to map layers
     var map; //OL map ref;
     
@@ -191,8 +194,8 @@ var quake = (function($){
           target: 'map',
           renderer: 'canvas', // Force the renderer to be used
           view: new ol.View({
-            center: ol.proj.transform([-125, 55], 'EPSG:4326','EPSG:3857'),
-            zoom: 5
+            center: ol.proj.transform([-95, 55], 'EPSG:4326','EPSG:3857'),
+            zoom: 3
           }),
           interactions: mapInteractions
          
@@ -278,6 +281,10 @@ var quake = (function($){
             handleTimeUpdate(scrubber.value());
         };
         
+        $('.scrubber-control').on('mousedown', function(){ 
+            playbackStop(); 
+        }); //stop autoscrub 
+        
     }
     
     
@@ -312,6 +319,8 @@ var quake = (function($){
         //$('#time').slider('setValue',startTime);
         scrubber.value(startTime);
         handleTimeUpdate (startTime);
+        playbackStart(dateEarliest.getTime(), startTime, 24, 50000000);
+        
         
     };
 
@@ -319,6 +328,47 @@ var quake = (function($){
         selectDataRange(time-timestampSpan, time+timestampSpan);
     };
 
+    
+    /**
+     * @brief: playback feature
+     * @param {step} timestep between animation callbacks, in msec, 50000000 noy unreasonable
+     * @TODO: use promises inistead of callbacks
+     * @TODO: put this in a module
+     *
+     */
+    var playbackStart = function(startTS, endTS, fps, step) {
+        //verify date timestamp ranges:
+        if (step != NaN) playheadStep = step;
+        if (startTS != NaN) {
+            (startTS < dateEarliest.getTime()) ? playbackStartTimestamp = dateEarliest.getTime() : playbackStartTimestamp = startTS;
+            playheadDate = playbackStartTimestamp;
+        }
+        if (endTS != NaN) {
+            (endTS > dateLatest.getTime()) ? playbackEndTimestamp = dateLatest.getTime() : playbackEndTimestamp = endTS;
+        }
+        playbackStop();
+        playbackIntervalTimer = setInterval(playbackAnimationCallback, 1000.0 / fps);
+        
+    }
+        
+    var playbackStop = function(){
+        console.log('playbackSTOP');
+        try {
+            clearInterval(playbackIntervalTimer);
+        } catch(err) {
+            //timer did not exist;
+        }    
+
+    }
+
+    var playbackAnimationCallback = function() {
+        //selectDataRange(playheadDate - timestampSpan, playheadDate + timestampSpan);
+        playheadDate += playheadStep;
+        scrubber.value(playheadDate)
+        if(playheadDate > playbackEndTimestamp) playbackStop();
+    }
+
+    
     /**
      * @brief: document resize handler
      */
