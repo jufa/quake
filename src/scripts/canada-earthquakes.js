@@ -60,13 +60,17 @@ var quake = (function($){
                     //check date range
                     if (quakeTimestamp > startTimestamp && quakeTimestamp < endTimestamp ) {
                         count++;
+                        
                         lat = val.geoJSON.coordinates[0];
                         lon = val.geoJSON.coordinates[1];
                         var feature = drawQuakeFeature(lon, lat, val.magnitude);
                         //add some userdata
                         feature.quakedata = {};
                         feature.quakedata.magnitude = val.magnitude; //in the MN mag scale
-                        if(val.location) feature.quakedata.description = val.location.en || ''; //description of location
+                        feature.quakedata.description = "";
+                        if(val.location) {
+                            feature.quakedata.description = val.location.en; //description of location 
+                        }
                         feature.quakedata.depth = val.depth; //in km
                         
                         features.push(feature);
@@ -117,16 +121,16 @@ var quake = (function($){
 
     function parseData (data) {
         quakeData = data;
+        
         addTimestamps();
         selectDataRange();
     }
 
     function getData(callback) {
-        "use strict";
         $.getJSON(dataSource, function (data) {
             parseData(data);
             callback();
-        });
+        });    
     }
 
     /**
