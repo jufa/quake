@@ -8,10 +8,11 @@ var quake = (function($){
     var timestampSpan = 1*48*60*60*1000; //0.5 days in msec 
     var scrubber;//scrubber control ref
     var vectorSource = new ol.source.Vector();
+    var mapInteractions; //object containing the ol map interaction objects. i.e. what happens visually to feature styles when a user interacts with a feature.
     var quakeOpacity = 0.9;//opacity of quake indicator circles
     var colours = ["#66CCFF", "#66FFFF", "#66FFCC", "#CCFF66", "#FFCC00", "#FF6600"]; //to map to magnitudes 1 - 5.9 and higher see: http://coolmaxhot.com/graphics/hex-color-palette.htm
     var playbackIntervalTimer; //creference to timer used in doing animated callback
-    var playheadDate; //the current playback date;
+    var playheadTimestamp; //the current playback date;
     var playheadStep; //timestep in msec for playhead to advance in an nimation frame;
     var vector,raster; //refs to map layers
     var map; //OL map ref;
@@ -84,7 +85,6 @@ var quake = (function($){
         
         $('#labelEarliest').html(new Date(startTimestamp).toUTCString().substring(0,17));
         $('#labelLatest').html('');
-        
         
         vectorSource.addFeatures( features );
     }
@@ -163,23 +163,190 @@ var quake = (function($){
         return feature;
     }
     
-    var mapInteractions = 
-      ol.interaction.defaults().extend([
-          new ol.interaction.Select({
-            style: new ol.style.Style({
-                stroke: new ol.style.Stroke({
-                  color: '#666666'
-                })
-              })
-            })
-          ]);
+   
     
+    /**
+     * @brief: show the information about user selected quakes
+     * @{pixel} x,y coord as reported by the OL map event
+     */
+    var displayQuakeInfo = function(pixel){
+        var features = [];
+        map.forEachFeatureAtPixel(pixel, function(feature, layer) {
+            features.push(feature);
+        });
+        if (features.length > 0) {
+            var i;
+            var details="";
+            var colour;
+            var max = features.length;
+            for (i = 0; i < features.length; i++) {
+                    colour = magColour(features[i].quakedata.magnitude);
+                    details+='<span style="font-size:20px;color:'+colour+'">Mag: '+features[i].quakedata.magnitude+' Depth: '+features[i].quakedata.depth+'km</span><br/>'+features[i].quakedata.description+'<br/>'
+            }
+            $('#info').html(details);
+        } else {
+            $('#info').html('&nbsp;');
+        }
+    };
+    
+    var hideQuakeInfo = function() {
+        $('#info').html('');
+    }
+        
+    
+     /**
+     * @brief: return the string "#XXYYZZ" palette colour for the magnitude
+     */
+    var magColour = function (mag) {
+         mag = Math.round(mag);
+        if( mag >= colours.length) mag = colours.length-1;
+        var hexString = colours[mag];
+        return hexString;
+    }
+    
+    
+    
+   
+    
+    /**
+     * @brief:show / hide loader
+     */
+    var hideLoader = function() {
+        $('#loading').fadeOut();
+    }
+    var showLoader = function() {
+        $('#loading').show();
+    }
+    
+
+    
+    /**
+     * @brief: called primarily by scrubber interaction to change the data show to new timestamps bounds
+     * @param {time} integer unix timestamp
+     * @usesglobal {timestampSpan}
+     */
+    var handleTimeUpdate  = function (time) {
+        hideQuakeInfo(); //invalidated anyways
+        selectDataRange(time-timestampSpan, time+timestampSpan);
+    };
+
+    
+    /**
+     * @brief: playback feature
+     * @param {startTS} starting unix timestamp, clamped to earliest if OOR
+     * @param {endTS} ending unix timestamp, clamped to latest if OOR
+     * @param {fps} int frames per second to animate
+     * @param {step} timestep between animation callbacks, in msec, 50000000 noy unreasonable
+     * @writes module param {playbackStartTimestamp, playbackEndTimestamp}
+     * @reads module param {dateEarliest, dateLatest}
+     * @TODO: use promises inistead of callbacks
+     * @TODO: put this in a module or fork the  scrubber git project to add this functionality
+     *
+     */
+    var playbackStart = function(startTS, endTS, fps, step) {
+        //verify date timestamp ranges:
+        if (step != NaN) playheadStep = step;
+        if (startTS != NaN) {
+            (startTS < dateEarliest.getTime()) ? playbackStartTimestamp = dateEarliest.getTime() : playbackStartTimestamp = startTS;
+            playheadTimestamp = playbackStartTimestamp;
+        }
+        if (endTS != NaN) {
+            (endTS > dateLatest.getTime()) ? playbackEndTimestamp = dateLatest.getTime() : playbackEndTimestamp = endTS;
+        }
+        playbackStop();
+        playbackIntervalTimer = setInterval(playbackAnimationCallback, 1000.0 / fps);
+        
+    }
+        
+    var playbackStop = function(){
+        try {
+            clearInterval(playbackIntervalTimer);
+        } catch(err) {
+            //timer did not exist;
+        }    
+    }
+
+    var playbackAnimationCallback = function() {
+        //selectDataRange(playheadTimestamp - timestampSpan, playheadTimestamp + timestampSpan);
+        playheadTimestamp += playheadStep;
+        scrubber.value(playheadTimestamp)
+        if(playheadTimestamp > playbackEndTimestamp) playbackStop();
+    }
+
+    
+    /**
+     * @brief: document resize handler
+     */
+    $(window).resize( function() {
+ 
+    });
+    
+     /**
+     * @brief: initialize the scrubber control
+     * @reference: https://github.com/desmosinc/scrubber
+     */
+    var setupScrubber = function () {
+        scrubber = new ScrubberView();
+        
+        $('.scrubber-control').append(scrubber.elt);
+        scrubber.min(Math.floor(dateEarliest));
+        scrubber.max(Math.floor(dateLatest));
+        scrubber.step(1000);
+        
+        //$('.scrubber-control').css({'visibility':'visible'});
+        
+        //interaction listener:
+        scrubber.onValueChanged = function (value) {
+            handleTimeUpdate(scrubber.value());
+        };
+        
+        $('.scrubber-control').on('mousedown', function(){ 
+            playbackStop(); 
+        }); //stop autoscrub 
+        
+        //and for touich:
+        document.addEventListener('touchstart', touchListener, false);
+        
+    }
+    
+    /**
+     * @brief: handles initial touch user interaction with whole app area
+     */
+    var touchListener = function(evt) {
+        playbackStop();
+        document.removeEventListener('touchstart', touchListener);
+    }
+    
+    
+    
+    /**
+     * @brief: init header text with start and end dates of quake data
+     */
+    var setupHeader = function(){   
+        $('#labelEarliest').html(dateEarliest.toUTCString()+" to");
+        $('#labelLatest').html(dateLatest.toUTCString());
+    }
+    
+
 
     /**
      * @brief: initialize the openlayers map
      * @required: layer sources created
      */
     var setupMap = function() {
+        
+        mapInteractions = 
+          ol.interaction.defaults().extend([
+              new ol.interaction.Select({
+                style: new ol.style.Style({
+                    stroke: new ol.style.Stroke({
+                      color: '#666666'
+                    })
+                  })
+                })
+              ]);
+        
+        
         vector = new ol.layer.Vector({
           title: 'Earthquakes',
           source: vectorSource
@@ -206,106 +373,6 @@ var quake = (function($){
         });
     };
     
-    /**
-     * @brief: show the information about user selected quakes
-     * @{pixel} x,y coord as reported by the OL map event
-     */
-    var displayQuakeInfo = function(pixel){
-        var features = [];
-        map.forEachFeatureAtPixel(pixel, function(feature, layer) {
-            features.push(feature);
-        });
-        if (features.length > 0) {
-            var i;
-            var details="";
-            var colour;
-            var max = features.length;
-            for (i = 0; i < features.length; i++) {
-                    colour = magColour(features[i].quakedata.magnitude);
-                    details+='<span style="font-size:20px;color:'+colour+'">Mag: '+features[i].quakedata.magnitude+' Depth: '+features[i].quakedata.depth+'km</span><br/>'+features[i].quakedata.description+'<br/>'
-            }
-            $('#info').html(details);
-        } else {
-            $('#info').html('&nbsp;');
-        }
-    };
-    
-     /**
-     * @brief: return the string "#XXYYZZ" palette colour for the magnitude
-     */
-    var magColour = function (mag) {
-         mag = Math.round(mag);
-        if( mag >= colours.length) mag = colours.length-1;
-        var hexString = colours[mag];
-        return hexString;
-    }
-    
-    /**
-     * @brief: initialize the slider control
-     */
-    var setupSlider = function () {
-        $('#time').slider({
-            min: Math.floor(dateEarliest),
-            max: Math.floor(dateLatest),
-            step:1000,
-            value: Math.floor(dateEarliest)
-        });
-        
-        $('.slider-holder').css({'visibility':'visible'});
-        
-        //interaction listener:
-        $('#time').slider()
-            .on('slide', function(ev) {
-            handleTimeUpdate(ev.value);
-          });
-        
-    }
-    
-    
-    /**
-     * @brief: initialize the scrubber control
-     * @reference: https://github.com/desmosinc/scrubber
-     */
-    var setupScrubber = function () {
-        scrubber = new ScrubberView();
-        
-        $('.scrubber-control').append(scrubber.elt);
-        scrubber.min(Math.floor(dateEarliest));
-        scrubber.max(Math.floor(dateLatest));
-        scrubber.step(1000);
-        
-        //$('.scrubber-control').css({'visibility':'visible'});
-        
-        //interaction listener:
-        scrubber.onValueChanged = function (value) {
-            handleTimeUpdate(scrubber.value());
-        };
-        
-        $('.scrubber-control').on('mousedown', function(){ 
-            playbackStop(); 
-        }); //stop autoscrub 
-        
-    }
-    
-    
-    
-    /**
-     * @brief: init header text with start and end dates of quake data
-     */
-    var setupHeader = function(){   
-        $('#labelEarliest').html(dateEarliest.toUTCString()+" to");
-        $('#labelLatest').html(dateLatest.toUTCString());
-    }
-    
-    /**
-     * @brief:show / hide loader
-     */
-    var hideLoader = function() {
-        $('#loading').fadeOut();
-    }
-    var showLoader = function() {
-        $('#loading').show();
-    }
     
     /**
      * @brief: entry point to  initialize the interface
@@ -319,62 +386,10 @@ var quake = (function($){
         //$('#time').slider('setValue',startTime);
         scrubber.value(startTime);
         handleTimeUpdate (startTime);
-        playbackStart(dateEarliest.getTime(), startTime, 24, 50000000);
-        
+        playbackStart(dateEarliest.getTime(), dateLatest.getTime(), 24, 50000000);
         
     };
-
-    var handleTimeUpdate  = function (time) {
-        selectDataRange(time-timestampSpan, time+timestampSpan);
-    };
-
     
-    /**
-     * @brief: playback feature
-     * @param {step} timestep between animation callbacks, in msec, 50000000 noy unreasonable
-     * @TODO: use promises inistead of callbacks
-     * @TODO: put this in a module
-     *
-     */
-    var playbackStart = function(startTS, endTS, fps, step) {
-        //verify date timestamp ranges:
-        if (step != NaN) playheadStep = step;
-        if (startTS != NaN) {
-            (startTS < dateEarliest.getTime()) ? playbackStartTimestamp = dateEarliest.getTime() : playbackStartTimestamp = startTS;
-            playheadDate = playbackStartTimestamp;
-        }
-        if (endTS != NaN) {
-            (endTS > dateLatest.getTime()) ? playbackEndTimestamp = dateLatest.getTime() : playbackEndTimestamp = endTS;
-        }
-        playbackStop();
-        playbackIntervalTimer = setInterval(playbackAnimationCallback, 1000.0 / fps);
-        
-    }
-        
-    var playbackStop = function(){
-        console.log('playbackSTOP');
-        try {
-            clearInterval(playbackIntervalTimer);
-        } catch(err) {
-            //timer did not exist;
-        }    
-
-    }
-
-    var playbackAnimationCallback = function() {
-        //selectDataRange(playheadDate - timestampSpan, playheadDate + timestampSpan);
-        playheadDate += playheadStep;
-        scrubber.value(playheadDate)
-        if(playheadDate > playbackEndTimestamp) playbackStop();
-    }
-
-    
-    /**
-     * @brief: document resize handler
-     */
-    $(window).resize( function() {
- 
-    });
 
     
     /**
